@@ -10,7 +10,7 @@ from typing import Any
 
 import structlog
 from azure.identity.aio import DefaultAzureCredential
-from azure.storage.blob import BlobSasPermissions, generate_blob_sas
+from azure.storage.blob import BlobSasPermissions, ContentSettings, generate_blob_sas
 from azure.storage.blob.aio import BlobServiceClient
 
 logger = structlog.get_logger(__name__)
@@ -148,7 +148,7 @@ async def upload_blob(
             file_data = Path(file_path).read_bytes()
             await blob_client.upload_blob(
                 file_data,
-                content_settings={"content_type": content_type},
+                content_settings=ContentSettings(content_type=content_type),
                 overwrite=True,
             )
 
@@ -206,7 +206,7 @@ async def upload_bytes_blob(
 
             await blob_client.upload_blob(
                 data,
-                content_settings={"content_type": content_type},
+                content_settings=ContentSettings(content_type=content_type),
                 overwrite=True,
             )
 

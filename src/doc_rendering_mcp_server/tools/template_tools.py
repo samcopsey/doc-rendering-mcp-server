@@ -75,20 +75,24 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     async def list_templates() -> list[dict[str, Any]]:
-        """List all available document templates with their names, descriptions, supported formats, and required fields."""
+        """List all available document templates with names, descriptions, formats, and required fields."""
         registry = load_template_registry()
-        return [
-            {
+        results = []
+        for name, entry in registry.templates.items():
+            # PDF is derived from HTML via WeasyPrint — advertise it for any template with HTML
+            formats = list(entry.formats.keys())
+            if "html" in formats and "pdf" not in formats:
+                formats.append("pdf")
+            results.append({
                 "name": name,
                 "display_name": entry.display_name,
                 "description": entry.description,
                 "category": entry.category,
-                "formats": list(entry.formats.keys()),
+                "formats": formats,
                 "required_fields": entry.required_fields,
                 "optional_fields": entry.optional_fields,
-            }
-            for name, entry in registry.templates.items()
-        ]
+            })
+        return results
 
     @mcp.tool()
     async def validate_template_context(template_name: str, context: dict[str, Any]) -> dict[str, Any]:

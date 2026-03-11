@@ -10,7 +10,7 @@ import structlog
 from jinja2 import Environment, FileSystemLoader
 from mcp.server.fastmcp import FastMCP
 
-from doc_rendering_mcp_server.tools.blob_tools import build_blob_name, upload_blob
+from doc_rendering_mcp_server.tools.blob_tools import upload_blob
 from doc_rendering_mcp_server.tools.template_tools import TEMPLATES_DIR, get_template_info
 
 logger = structlog.get_logger(__name__)
@@ -38,7 +38,8 @@ async def _render_html(template_name: str, context: dict[str, Any]) -> str:
     """
     entry = get_template_info(template_name)
     if "html" not in entry.formats:
-        raise FileNotFoundError(f"Template '{template_name}' has no HTML format. Available: {list(entry.formats.keys())}")
+        available = list(entry.formats.keys())
+        raise FileNotFoundError(f"Template '{template_name}' has no HTML format. Available: {available}")
 
     env = _get_jinja_env()
     template = env.get_template(entry.formats["html"].template)
@@ -160,7 +161,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     async def render_pdf(template_name: str, context: dict[str, Any]) -> dict[str, str]:
-        """Render a PDF document from a template. Automatically uploads to Azure Blob Storage and returns a time-limited download URL (1 hour).
+        """Render a PDF document from a template. Uploads to Blob Storage, returns a download URL (1 hour).
 
         Args:
             template_name: Template key (e.g. 'sprint_report', 'user_guide', 'functional_spec').
@@ -170,7 +171,7 @@ def register_tools(mcp: FastMCP) -> None:
 
     @mcp.tool()
     async def render_docx(template_name: str, context: dict[str, Any]) -> dict[str, str]:
-        """Render a DOCX (Word) document from a template. Automatically uploads to Azure Blob Storage and returns a time-limited download URL (1 hour).
+        """Render a DOCX (Word) document from a template. Uploads to Blob Storage, returns a download URL (1 hour).
 
         Args:
             template_name: Template key (e.g. 'user_guide', 'functional_spec').

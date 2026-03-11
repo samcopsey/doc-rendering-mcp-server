@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-from unittest.mock import patch
-
 import pytest
 
-from doc_rendering_mcp_server.models import TemplateEntry, TemplateFormat, TemplateRegistry
+from doc_rendering_mcp_server.models import TemplateRegistry
 from doc_rendering_mcp_server.tools.template_tools import (
     get_template_info,
     load_template_registry,
