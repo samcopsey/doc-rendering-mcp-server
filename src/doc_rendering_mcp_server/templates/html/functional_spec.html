@@ -1,0 +1,149 @@
+{% extends "html/base.html" %}
+
+{% block subtitle %}
+<div class="subtitle">Functional Specification</div>
+{% endblock %}
+
+{% block metadata %}
+{{ super() }}
+{% if stakeholders %}
+<div class="meta-group">
+    <dt>Stakeholders</dt>
+    <dd>{{ stakeholders if stakeholders is string else stakeholders | join(", ") }}</dd>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>Overview</h2>
+<p>{{ overview }}</p>
+
+{% if scope %}
+<h2>Scope</h2>
+{% if scope is string %}
+<p>{{ scope }}</p>
+{% else %}
+<h3>In Scope</h3>
+<ul>
+    {% for item in scope %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if out_of_scope %}
+<h3>Out of Scope</h3>
+{% if out_of_scope is string %}
+<p>{{ out_of_scope }}</p>
+{% else %}
+<ul>
+    {% for item in out_of_scope %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+<h2>Requirements</h2>
+{% if requirements is string %}
+<p>{{ requirements }}</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Requirement</th>
+            <th>Priority</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for req in requirements %}
+        <tr>
+            <td>{{ req.id | default(loop.index) }}</td>
+            <td>{{ req.description if req is mapping else req }}</td>
+            <td>{{ req.priority | default("Medium") if req is mapping else "Medium" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if assumptions %}
+<h2>Assumptions</h2>
+{% if assumptions is string %}
+<p>{{ assumptions }}</p>
+{% else %}
+<ul>
+    {% for item in assumptions %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if constraints %}
+<h2>Constraints</h2>
+{% if constraints is string %}
+<p>{{ constraints }}</p>
+{% else %}
+<ul>
+    {% for item in constraints %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if acceptance_criteria %}
+<h2>Acceptance Criteria</h2>
+{% if acceptance_criteria is string %}
+<p>{{ acceptance_criteria }}</p>
+{% else %}
+<ol>
+    {% for criterion in acceptance_criteria %}
+    <li>{{ criterion }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+{% endif %}
+
+{% if dependencies %}
+<h2>Dependencies</h2>
+{% if dependencies is string %}
+<p>{{ dependencies }}</p>
+{% else %}
+<ul>
+    {% for dep in dependencies %}
+    <li>{{ dep }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if risks %}
+<h2>Risks</h2>
+{% if risks is string %}
+<p>{{ risks }}</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th>Risk</th>
+            <th>Impact</th>
+            <th>Mitigation</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for risk in risks %}
+        <tr>
+            <td>{{ risk.description if risk is mapping else risk }}</td>
+            <td>{{ risk.impact | default("Medium") if risk is mapping else "—" }}</td>
+            <td>{{ risk.mitigation | default("—") if risk is mapping else "—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endif %}
+{% endblock %}

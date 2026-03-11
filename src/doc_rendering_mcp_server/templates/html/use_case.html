@@ -1,0 +1,105 @@
+{% extends "html/base.html" %}
+
+{% block subtitle %}
+<div class="subtitle">Use Case Document</div>
+{% endblock %}
+
+{% block content %}
+<h2>Overview</h2>
+<p>{{ overview }}</p>
+
+<h2>Actors</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Actor</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if actors is string %}
+        <tr><td colspan="2">{{ actors }}</td></tr>
+        {% else %}
+        {% for actor in actors %}
+        <tr>
+            <td>{{ actor.name }}</td>
+            <td>{{ actor.description }}</td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+
+{% if preconditions %}
+<h2>Preconditions</h2>
+{% if preconditions is string %}
+<p>{{ preconditions }}</p>
+{% else %}
+<ul>
+    {% for item in preconditions %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+<h2>Main Flow</h2>
+{% if main_flow is string %}
+<p>{{ main_flow }}</p>
+{% else %}
+<ol>
+    {% for step in main_flow %}
+    <li>{{ step }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+
+{% if alternative_flows %}
+<h2>Alternative Flows</h2>
+{% if alternative_flows is string %}
+<p>{{ alternative_flows }}</p>
+{% else %}
+{% for flow in alternative_flows %}
+<h3>{{ flow.name }}</h3>
+{% if flow.trigger %}
+<p><strong>Trigger:</strong> {{ flow.trigger }}</p>
+{% endif %}
+{% if flow.steps is string %}
+<p>{{ flow.steps }}</p>
+{% else %}
+<ol>
+    {% for step in flow.steps %}
+    <li>{{ step }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}
+
+{% if postconditions %}
+<h2>Postconditions</h2>
+{% if postconditions is string %}
+<p>{{ postconditions }}</p>
+{% else %}
+<ul>
+    {% for item in postconditions %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if notes %}
+<h2>Notes</h2>
+{% if notes is string %}
+<p>{{ notes }}</p>
+{% else %}
+<ul>
+    {% for note in notes %}
+    <li>{{ note }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+{% endblock %}

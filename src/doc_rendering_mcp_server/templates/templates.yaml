@@ -1,0 +1,105 @@
+version: "1.0"
+
+templates:
+  user_guide:
+    display_name: "User Guide"
+    description: "Step-by-step end-user instructions for a system or feature."
+    category: documentation
+    formats:
+      html:
+        template: html/user_guide.html
+        css: css/document.css
+      docx:
+        template: docx/user_guide.docx
+    required_fields:
+      - title
+      - project_name
+      - sections
+    optional_fields:
+      - version
+      - audience
+      - prerequisites
+      - date
+    default_publish_target: wiki
+
+  use_case:
+    display_name: "Use Case"
+    description: "Structured use case documentation with actors, flows, and conditions."
+    category: documentation
+    formats:
+      html:
+        template: html/use_case.html
+        css: css/document.css
+      markdown:
+        template: markdown/use_case.md
+    required_fields:
+      - title
+      - project_name
+      - overview
+      - actors
+      - main_flow
+    optional_fields:
+      - preconditions
+      - alternative_flows
+      - postconditions
+      - notes
+      - date
+    default_publish_target: wiki
+
+  sprint_report:
+    display_name: "Sprint Report"
+    description: "Sprint velocity and completion summary with capacity analysis."
+    category: reporting
+    formats:
+      html:
+        template: html/sprint_report.html
+        css: css/document.css
+      markdown:
+        template: markdown/sprint_report.md
+    required_fields:
+      - sprint_name
+      - team_name
+      - project_name
+      - start_date
+      - end_date
+      - planned_points
+      - completed_points
+      - velocity
+    optional_fields:
+      - completion_rate
+      - summary
+      - completed_items
+      - carried_over_items
+      - capacity_summary
+      - retrospective_notes
+      - generated_date
+    default_publish_target: wiki
+
+  functional_spec:
+    display_name: "Functional Specification"
+    description: "Detailed functional specification for a feature or system change."
+    category: specification
+    formats:
+      html:
+        template: html/functional_spec.html
+        css: css/document.css
+      docx:
+        template: docx/functional_spec.docx
+    required_fields:
+      - title
+      - project_name
+      - overview
+      - requirements
+    optional_fields:
+      - version
+      - author
+      - stakeholders
+      - scope
+      - out_of_scope
+      - assumptions
+      - constraints
+      - acceptance_criteria
+      - dependencies
+      - risks
+      - date
+    default_publish_target: wiki

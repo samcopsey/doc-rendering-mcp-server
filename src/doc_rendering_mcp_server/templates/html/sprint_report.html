@@ -1,0 +1,146 @@
+{% extends "html/base.html" %}
+
+{% block subtitle %}
+<div class="subtitle">Sprint Report &mdash; {{ team_name }}</div>
+{% endblock %}
+
+{% block metadata %}
+<div class="meta-group">
+    <dt>Project</dt>
+    <dd>{{ project_name }}</dd>
+</div>
+<div class="meta-group">
+    <dt>Team</dt>
+    <dd>{{ team_name }}</dd>
+</div>
+<div class="meta-group">
+    <dt>Period</dt>
+    <dd>{{ start_date }} &mdash; {{ end_date }}</dd>
+</div>
+{% if generated_date %}
+<div class="meta-group">
+    <dt>Generated</dt>
+    <dd>{{ generated_date }}</dd>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if summary %}
+<h2>Summary</h2>
+<p>{{ summary }}</p>
+{% endif %}
+
+<h2>Velocity</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Planned Story Points</td><td>{{ planned_points }}</td></tr>
+        <tr><td>Completed Story Points</td><td>{{ completed_points }}</td></tr>
+        <tr><td>Velocity</td><td>{{ velocity }}</td></tr>
+        {% if completion_rate %}
+        <tr><td>Completion Rate</td><td>{{ completion_rate }}%</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+
+{% if completed_items %}
+<h2>Completed Work Items</h2>
+{% if completed_items is string %}
+<p>{{ completed_items }}</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>Points</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in completed_items %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.type }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.points | default("—") }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endif %}
+
+{% if carried_over_items %}
+<h2>Carried Over</h2>
+{% if carried_over_items is string %}
+<p>{{ carried_over_items }}</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Title</th>
+            <th>State</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in carried_over_items %}
+        <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.type }}</td>
+            <td>{{ item.title }}</td>
+            <td>{{ item.state }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endif %}
+
+{% if capacity_summary %}
+<h2>Team Capacity</h2>
+{% if capacity_summary is string %}
+<p>{{ capacity_summary }}</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th>Member</th>
+            <th>Activity</th>
+            <th>Available Hours</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in capacity_summary %}
+        <tr>
+            <td>{{ entry.name }}</td>
+            <td>{{ entry.activity }}</td>
+            <td>{{ entry.hours }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endif %}
+
+{% if retrospective_notes %}
+<h2>Retrospective Notes</h2>
+{% if retrospective_notes is string %}
+<p>{{ retrospective_notes }}</p>
+{% else %}
+<ul>
+    {% for note in retrospective_notes %}
+    <li>{{ note }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "html/base.html" %}
+
+{% block subtitle %}
+<div class="subtitle">User Guide{% if audience %} &mdash; {{ audience }}{% endif %}</div>
+{% endblock %}
+
+{% block metadata %}
+{{ super() }}
+{% if audience %}
+<div class="meta-group">
+    <dt>Audience</dt>
+    <dd>{{ audience }}</dd>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if prerequisites %}
+<h2>Prerequisites</h2>
+{% if prerequisites is string %}
+<p>{{ prerequisites }}</p>
+{% else %}
+<ul>
+    {% for item in prerequisites %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% for section in sections %}
+<h2>{{ section.title }}</h2>
+{% if section.description %}
+<p>{{ section.description }}</p>
+{% endif %}
+
+{% if section.steps %}
+<ol>
+    {% for step in section.steps %}
+    <li>
+        <strong>{{ step.action }}</strong>
+        {% if step.detail %}<br>{{ step.detail }}{% endif %}
+    </li>
+    {% endfor %}
+</ol>
+{% endif %}
+
+{% if section.note %}
+<div class="callout">
+    <p>{{ section.note }}</p>
+</div>
+{% endif %}
+
+{% if section.subsections %}
+{% for sub in section.subsections %}
+<h3>{{ sub.title }}</h3>
+{% if sub.content %}
+<p>{{ sub.content }}</p>
+{% endif %}
+{% if sub.steps %}
+<ol>
+    {% for step in sub.steps %}
+    <li>{{ step }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endblock %}
