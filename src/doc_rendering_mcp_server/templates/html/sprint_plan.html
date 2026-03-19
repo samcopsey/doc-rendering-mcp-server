@@ -107,13 +107,13 @@
 
 {% set total_hours = [] %}
 {% for item in work_items %}
-    {% if item.hours is defined and item.hours %}
+    {% if item.hours is defined and item.hours is number %}
         {% if total_hours.append(item.hours) %}{% endif %}
-    {% elif item.est_hours is defined and item.est_hours %}
+    {% elif item.est_hours is defined and item.est_hours is number %}
         {% if total_hours.append(item.est_hours) %}{% endif %}
-    {% elif item.original_estimate is defined and item.original_estimate %}
+    {% elif item.original_estimate is defined and item.original_estimate is number %}
         {% if total_hours.append(item.original_estimate) %}{% endif %}
-    {% elif item.estimate is defined and item.estimate %}
+    {% elif item.estimate is defined and item.estimate is number %}
         {% if total_hours.append(item.estimate) %}{% endif %}
     {% endif %}
 {% endfor %}
@@ -146,7 +146,7 @@
             <td>{{ entry.remaining_hours | default(entry.remaining | default("—")) }}</td>
             <td>
                 {% set pct = entry.utilization_pct | default(entry.utilization | default(none)) %}
-                {% if pct is not none %}
+                {% if pct is number %}
                     {% if pct > 95 %}
                     <span style="color: #dc2626; font-weight: bold;">{{ "%.0f"|format(pct) }}%</span>
                     {% elif pct > 80 %}
@@ -154,6 +154,8 @@
                     {% else %}
                     <span style="color: #16a34a;">{{ "%.0f"|format(pct) }}%</span>
                     {% endif %}
+                {% elif pct is not none %}
+                {{ pct }}
                 {% else %}
                 —
                 {% endif %}
