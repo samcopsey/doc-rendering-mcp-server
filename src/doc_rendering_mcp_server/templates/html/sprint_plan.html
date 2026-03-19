@@ -30,7 +30,16 @@
 {% endblock %}
 
 {% block content %}
-{% if total_planned_hours or total_planned_points or recommended_commitment or historical_velocity %}
+
+{# --- Sprint Overview --- #}
+{% if work_items is not string %}
+{% set epic_count = work_items | selectattr("type", "defined") | selectattr("type", "equalto", "Epic") | list | length %}
+{% set feature_count = work_items | selectattr("type", "defined") | selectattr("type", "equalto", "Feature") | list | length %}
+{% set story_count = work_items | selectattr("type", "defined") | selectattr("type", "equalto", "User Story") | list | length %}
+{% set task_count = work_items | selectattr("type", "defined") | selectattr("type", "equalto", "Task") | list | length %}
+{% set bug_count = work_items | selectattr("type", "defined") | selectattr("type", "equalto", "Bug") | list | length %}
+{% endif %}
+
 <h2>Sprint Overview</h2>
 <table>
     <thead>
@@ -40,6 +49,14 @@
         </tr>
     </thead>
     <tbody>
+        {% if work_items is not string %}
+        <tr><td>Total Work Items</td><td>{{ work_items | length }}</td></tr>
+        {% if epic_count %}<tr><td>&nbsp;&nbsp;Epics</td><td>{{ epic_count }}</td></tr>{% endif %}
+        {% if feature_count %}<tr><td>&nbsp;&nbsp;Features</td><td>{{ feature_count }}</td></tr>{% endif %}
+        {% if story_count %}<tr><td>&nbsp;&nbsp;User Stories</td><td>{{ story_count }}</td></tr>{% endif %}
+        {% if task_count %}<tr><td>&nbsp;&nbsp;Tasks</td><td>{{ task_count }}</td></tr>{% endif %}
+        {% if bug_count %}<tr><td>&nbsp;&nbsp;Bugs</td><td>{{ bug_count }}</td></tr>{% endif %}
+        {% endif %}
         {% if total_planned_hours %}
         <tr><td>Total Planned Hours</td><td>{{ total_planned_hours }}h</td></tr>
         {% endif %}
@@ -54,8 +71,8 @@
         {% endif %}
     </tbody>
 </table>
-{% endif %}
 
+{# --- Work Items --- #}
 <h2>Work Items</h2>
 {% if work_items is string %}
 <p>{{ work_items }}</p>
@@ -63,8 +80,9 @@
 <table>
     <thead>
         <tr>
-            <th style="width: 50%;">Title</th>
+            <th style="width: 40%;">Title</th>
             <th>Type</th>
+            <th>State</th>
             <th>Est. Hours</th>
             <th>Activity</th>
             <th>Assignee</th>
@@ -73,34 +91,60 @@
     <tbody>
         {% for item in work_items %}
         {% set item_type = item.type | default(item.work_item_type | default("")) %}
-        {% set is_parent = item_type in ["Feature", "User Story", "Epic"] %}
-        <tr{% if is_parent %} style="background: #f8fafc; font-weight: 500;"{% endif %}>
+        {% set item_state = item.state | default("") %}
+        {% set is_epic = item_type == "Epic" %}
+        {% set is_feature = item_type == "Feature" %}
+        {% set is_story = item_type == "User Story" %}
+        {% set is_leaf = item_type in ["Task", "Bug"] %}
+        <tr{% if is_epic %} style="background: #e0e7ff; font-weight: 600;"{% elif is_feature %} style="background: #f0f4ff; font-weight: 500;"{% elif is_story %} style="background: #f8fafc;"{% endif %}>
             <td>
-                {% if item_type == "Epic" %}
+                {% if is_epic %}
                 <strong>{{ item.title }}</strong>
-                {% elif item_type == "Feature" %}
-                <strong>{{ item.title }}</strong>
-                {% elif item_type == "User Story" %}
-                &nbsp;&nbsp;{{ item.title }}
-                {% elif item_type == "Task" or item_type == "Bug" %}
+                {% elif is_feature %}
+                &nbsp;&nbsp;<strong>{{ item.title }}</strong>
+                {% elif is_story %}
                 &nbsp;&nbsp;&nbsp;&nbsp;{{ item.title }}
+                {% elif is_leaf %}
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ item.title }}
                 {% else %}
                 {{ item.title }}
                 {% endif %}
             </td>
             <td>
-                {% if item_type == "User Story" %}Story{% else %}{{ item_type }}{% endif %}
+                {% if is_story %}Story{% else %}{{ item_type }}{% endif %}
             </td>
             <td>
-                {% if item.hours is defined and item.hours %}{{ item.hours }}h
-                {% elif item.est_hours is defined and item.est_hours %}{{ item.est_hours }}h
-                {% elif item.original_estimate is defined and item.original_estimate %}{{ item.original_estimate }}h
-                {% elif item.estimate is defined and item.estimate %}{{ item.estimate }}h
+                {% if item_state == "Closed" or item_state == "Done" %}
+                <span style="color: #16a34a;">{{ item_state }}</span>
+                {% elif item_state == "Active" or item_state == "In Progress" %}
+                <span style="color: #2563eb;">{{ item_state }}</span>
+                {% elif item_state == "New" or item_state == "Proposed" %}
+                <span style="color: #6b7280;">{{ item_state }}</span>
+                {% elif item_state == "Removed" %}
+                <span style="color: #dc2626;">{{ item_state }}</span>
+                {% elif item_state %}
+                {{ item_state }}
+                {% else %}
+                —
+                {% endif %}
+            </td>
+            <td>
+                {% if item.hours is defined and item.hours is number %}{{ item.hours }}h
+                {% elif item.est_hours is defined and item.est_hours is number %}{{ item.est_hours }}h
+                {% elif item.original_estimate is defined and item.original_estimate is number %}{{ item.original_estimate }}h
+                {% elif item.estimate is defined and item.estimate is number %}{{ item.estimate }}h
                 {% else %}—{% endif %}
             </td>
             <td>{{ item.activity | default("—") }}</td>
             <td>{{ item.assigned_to | default(item.assignee | default("—")) }}</td>
         </tr>
+        {% if item.description is defined and item.description and is_leaf %}
+        <tr>
+            <td colspan="6" style="padding: 4px 12px 8px 48px; color: #6b7280; font-size: 0.85em; border-top: none;">
+                {{ item.description[:200] }}{% if item.description | length > 200 %}...{% endif %}
+            </td>
+        </tr>
+        {% endif %}
         {% endfor %}
     </tbody>
 </table>
@@ -118,10 +162,11 @@
     {% endif %}
 {% endfor %}
 {% if total_hours %}
-<p><strong>Total estimated: {{ total_hours | sum }}h across {{ work_items | length }} items</strong></p>
+<p><strong>Total estimated: {{ total_hours | sum }}h across {{ total_hours | length }} estimated items ({{ work_items | length }} total)</strong></p>
 {% endif %}
 {% endif %}
 
+{# --- Capacity Summary --- #}
 {% if capacity_summary %}
 <h2>Capacity Summary</h2>
 {% if capacity_summary is string %}
@@ -167,6 +212,7 @@
 {% endif %}
 {% endif %}
 
+{# --- Estimation Notes --- #}
 {% if estimation_notes %}
 <h2>Estimation Notes</h2>
 {% if estimation_notes is string %}

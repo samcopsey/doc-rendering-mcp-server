@@ -77,7 +77,7 @@ templates:
 
   sprint_plan:
     display_name: "Sprint Plan"
-    description: "Sprint planning proposal with work items, time estimates, capacity analysis, and assignments. Work items should include title, type, and hours/est_hours/original_estimate/estimate for the estimated hours column. Activity and assigned_to/assignee are optional per item."
+    description: "Sprint planning proposal with full work item hierarchy, time estimates, capacity analysis, and assignments. Each work item should include: title, type (Epic/Feature/User Story/Task/Bug), state, hours (numeric or null), activity, assigned_to, and optionally description (first 200 chars shown for Tasks/Bugs). Items are visually grouped by hierarchy level with colour-coded state badges. The overview section auto-calculates item counts per type."
     category: reporting
     formats:
       html:
