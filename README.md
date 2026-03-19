@@ -52,7 +52,7 @@ pytest tests/ -v
 ruff check src/ tests/
 
 # Run locally
-export AZURE_STORAGE_ACCOUNT_NAME=stcastdevdocs
+export AZURE_STORAGE_ACCOUNT_NAME=your-storage-account
 az login
 python -m doc_rendering_mcp_server
 # Server starts on http://localhost:3001
