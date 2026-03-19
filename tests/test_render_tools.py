@@ -118,6 +118,91 @@ async def test_render_markdown_no_format_raises() -> None:
 
 
 @pytest.mark.asyncio
+async def test_render_html_functional_spec() -> None:
+    """Renders functional spec HTML with all 10 section headings."""
+    load_template_registry.cache_clear()
+    html = await _render_html("functional_spec", {
+        "title": "Phoenix Spec Test",
+        "project_name": "Cast",
+        "overview": "A layman's overview of the system.",
+        "problem_statement": "Manual processes waste engineering time.",
+        "requirements": [
+            {"id": "FR-001", "category": "Auth", "description": "SSO login", "priority": "Must Have"},
+            {"id": "FR-002", "category": "Data", "description": "Export CSV", "priority": "Should Have"},
+        ],
+        "roi_questions": [
+            "What is the current cost of manual processing?",
+            "How many hours per week are spent on this task?",
+        ],
+        "growth_strategy_alignment": "Aligns with Efficiency pillar.",
+        "problem_who_impacted": ["Engineering team", "Product managers"],
+        "problem_current_state": "Everything is manual.",
+        "problem_desired_state": "Fully automated pipeline.",
+        "key_features": [
+            {
+                "name": "Auto-Sync",
+                "capabilities": ["Real-time sync", "Conflict resolution"],
+                "user_benefits": "No manual data entry",
+            },
+        ],
+        "architecture_overview": "Microservice architecture on Azure.",
+        "architecture_components": [
+            {"component": "API Gateway", "technology": "Azure APIM", "purpose": "Request routing"},
+        ],
+        "nonfunctional_requirements": {"Performance": ["Response time < 200ms"], "Availability": "99.9% SLA"},
+        "security_auth": "Microsoft Entra ID with MSAL.",
+        "security_data_residency": "All data in UK South.",
+        "systems_infrastructure": [
+            {"service": "PostgreSQL", "environment": "Dev/Prod", "configuration": "B1ms flexible server"},
+        ],
+        "dependencies_technical": ["Azure subscription", "Entra ID tenant"],
+        "implementation_phases": ["Phase 1: Foundation", "Phase 2: Core features", "Phase 3: Polish"],
+        "target_go_live": "Q2 2026",
+        "pre_delivery_checklist": ["UK English verified", "Security review complete"],
+    })
+    assert "Phoenix Spec Test" in html
+    assert "1. Overview" in html
+    assert "2. ROI Statement" in html
+    assert "3. Problem Statement" in html
+    assert "4. Key Features" in html
+    assert "5. Functional Architecture" in html
+    assert "6. Detailed Requirements" in html
+    assert "7. Security" in html
+    assert "8. Systems" in html
+    assert "9. Dependencies" in html
+    assert "10. Implementation Approach" in html
+    assert "FR-001" in html
+    assert "never be fabricated" in html
+    assert "Pre-Delivery Checklist" in html
+    load_template_registry.cache_clear()
+
+
+@pytest.mark.asyncio
+async def test_render_markdown_functional_spec() -> None:
+    """Renders functional spec markdown with YAML frontmatter and section headings."""
+    load_template_registry.cache_clear()
+    md = await _render_markdown("functional_spec", {
+        "title": "Phoenix Spec Test",
+        "project_name": "Cast",
+        "overview": "A layman's overview.",
+        "problem_statement": "Manual processes are slow.",
+        "requirements": [
+            {"id": "FR-001", "description": "Must authenticate via SSO"},
+        ],
+        "roi_questions": ["What is the current cost?"],
+        "security_auth": "Entra ID.",
+        "implementation_phases": ["Phase 1: Build", "Phase 2: Deploy"],
+    })
+    assert "title:" in md
+    assert "## 1. Overview" in md
+    assert "## 3. Problem Statement" in md
+    assert "## 6. Detailed Requirements" in md
+    assert "FR-001" in md
+    assert "never be fabricated" in md
+    load_template_registry.cache_clear()
+
+
+@pytest.mark.asyncio
 async def test_render_pdf_sprint_report() -> None:
     """Renders sprint report as PDF (conditional — requires WeasyPrint)."""
     try:

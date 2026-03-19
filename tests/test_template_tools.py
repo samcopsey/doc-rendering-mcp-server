@@ -76,3 +76,39 @@ def test_validate_context_missing_fields() -> None:
     assert "project_name" in missing
     assert "planned_points" in missing
     load_template_registry.cache_clear()
+
+
+def test_functional_spec_has_phoenix_fields() -> None:
+    """Functional spec template has Phoenix 10-section required/optional fields."""
+    load_template_registry.cache_clear()
+    entry = get_template_info("functional_spec")
+    assert "problem_statement" in entry.required_fields
+    assert "roi_questions" in entry.optional_fields
+    assert "security_auth" in entry.optional_fields
+    assert "implementation_phases" in entry.optional_fields
+    assert "architecture_components" in entry.optional_fields
+    assert "pre_delivery_checklist" in entry.optional_fields
+    load_template_registry.cache_clear()
+
+
+def test_functional_spec_has_all_formats() -> None:
+    """Functional spec template has html, docx, and markdown formats."""
+    load_template_registry.cache_clear()
+    entry = get_template_info("functional_spec")
+    assert "html" in entry.formats
+    assert "docx" in entry.formats
+    assert "markdown" in entry.formats
+    load_template_registry.cache_clear()
+
+
+def test_validate_functional_spec_required_fields() -> None:
+    """Validates that functional spec catches missing problem_statement."""
+    load_template_registry.cache_clear()
+    missing = validate_context("functional_spec", {
+        "title": "Test Spec",
+        "project_name": "Cast",
+        "overview": "Test overview.",
+        "requirements": [{"id": "FR-001", "description": "Must work"}],
+    })
+    assert "problem_statement" in missing
+    load_template_registry.cache_clear()

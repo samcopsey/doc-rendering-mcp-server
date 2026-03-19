@@ -75,9 +75,35 @@ templates:
       - generated_date
     default_publish_target: wiki
 
+  sprint_plan:
+    display_name: "Sprint Plan"
+    description: "Sprint planning proposal with work items, time estimates, capacity analysis, and assignments. Work items should include title, type, and hours/est_hours/original_estimate/estimate for the estimated hours column. Activity and assigned_to/assignee are optional per item."
+    category: reporting
+    formats:
+      html:
+        template: html/sprint_plan.html
+        css: css/document.css
+      markdown:
+        template: markdown/sprint_plan.md
+    required_fields:
+      - team_name
+      - sprint_name
+      - sprint_dates
+      - work_items
+    optional_fields:
+      - project_name
+      - capacity_summary
+      - total_planned_points
+      - total_planned_hours
+      - recommended_commitment
+      - historical_velocity
+      - estimation_notes
+      - generated_date
+    default_publish_target: wiki
+
   functional_spec:
     display_name: "Functional Specification"
-    description: "Detailed functional specification for a feature or system change."
+    description: "Detailed technical specification following the Phoenix 10-section template. Includes overview, ROI questions, problem statement, features, architecture, requirements, security, systems, dependencies, and implementation approach."
     category: specification
     formats:
       html:
@@ -85,21 +111,59 @@ templates:
         css: css/document.css
       docx:
         template: docx/functional_spec.docx
+      markdown:
+        template: markdown/functional_spec.md
     required_fields:
       - title
       - project_name
       - overview
+      - problem_statement
       - requirements
     optional_fields:
       - version
       - author
+      - date
+      - status
+      - ado_link
       - stakeholders
+      - business_value_score
+      - priority
+      - target_completion
+      - effort_estimate
+      - roi_azure_estimate
+      - roi_questions
+      - growth_strategy_alignment
+      - problem_who_impacted
+      - problem_current_state
+      - problem_desired_state
+      - key_features
+      - architecture_overview
+      - architecture_components
+      - architecture_data_flows
+      - nonfunctional_requirements
+      - security_auth
+      - security_permissions
+      - security_secrets
+      - security_data_residency
+      - security_gdpr
+      - security_network
+      - security_audit
+      - systems_customer_requirements
+      - systems_infrastructure
+      - systems_integrations
+      - dependencies_technical
+      - dependencies_team
+      - dependencies_external
+      - blockers
+      - implementation_estimate
+      - implementation_phases
+      - target_go_live
+      - critical_path
+      - pre_delivery_checklist
       - scope
       - out_of_scope
       - assumptions
       - constraints
       - acceptance_criteria
-      - dependencies
       - risks
-      - date
-    default_publish_target: wiki
+    default_publish_target: confluence

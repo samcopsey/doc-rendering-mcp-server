@@ -1,7 +1,7 @@
 {% extends "html/base.html" %}
 
 {% block subtitle %}
-<div class="subtitle">Functional Specification</div>
+<div class="subtitle">Functional Specification{% if status %} &mdash; {{ status }}{% endif %}</div>
 {% endblock %}
 
 {% block metadata %}
@@ -12,18 +12,71 @@
     <dd>{{ stakeholders if stakeholders is string else stakeholders | join(", ") }}</dd>
 </div>
 {% endif %}
+{% if status %}
+<div class="meta-group">
+    <dt>Status</dt>
+    <dd>{{ status }}</dd>
+</div>
+{% endif %}
+{% if priority %}
+<div class="meta-group">
+    <dt>Priority</dt>
+    <dd>{{ priority }}</dd>
+</div>
+{% endif %}
+{% if effort_estimate %}
+<div class="meta-group">
+    <dt>Effort Estimate</dt>
+    <dd>{{ effort_estimate }}</dd>
+</div>
+{% endif %}
+{% if ado_link %}
+<div class="meta-group">
+    <dt>ADO Link</dt>
+    <dd><a href="{{ ado_link }}">{{ ado_link }}</a></dd>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block content %}
-<h2>Overview</h2>
+
+{# ── Section 1: Overview ── #}
+<h2>1. Overview</h2>
 <p>{{ overview }}</p>
 
+{% if stakeholders or business_value_score or priority or effort_estimate or target_completion or ado_link %}
+<table>
+    <thead>
+        <tr><th>Detail</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+        {% if stakeholders %}
+        <tr><td>Stakeholders</td><td>{{ stakeholders if stakeholders is string else stakeholders | join(", ") }}</td></tr>
+        {% endif %}
+        {% if business_value_score %}
+        <tr><td>Business Value Score</td><td>{{ business_value_score }}</td></tr>
+        {% endif %}
+        {% if priority %}
+        <tr><td>Priority</td><td>{{ priority }}</td></tr>
+        {% endif %}
+        {% if effort_estimate %}
+        <tr><td>Effort Estimate</td><td>{{ effort_estimate }}</td></tr>
+        {% endif %}
+        {% if target_completion %}
+        <tr><td>Target Completion</td><td>{{ target_completion }}</td></tr>
+        {% endif %}
+        {% if ado_link %}
+        <tr><td>ADO Link</td><td><a href="{{ ado_link }}">{{ ado_link }}</a></td></tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endif %}
+
 {% if scope %}
-<h2>Scope</h2>
+<h3>Scope</h3>
 {% if scope is string %}
 <p>{{ scope }}</p>
 {% else %}
-<h3>In Scope</h3>
 <ul>
     {% for item in scope %}
     <li>{{ item }}</li>
@@ -45,32 +98,8 @@
 {% endif %}
 {% endif %}
 
-<h2>Requirements</h2>
-{% if requirements is string %}
-<p>{{ requirements }}</p>
-{% else %}
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Requirement</th>
-            <th>Priority</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for req in requirements %}
-        <tr>
-            <td>{{ req.id | default(loop.index) }}</td>
-            <td>{{ req.description if req is mapping else req }}</td>
-            <td>{{ req.priority | default("Medium") if req is mapping else "Medium" }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% endif %}
-
 {% if assumptions %}
-<h2>Assumptions</h2>
+<h3>Assumptions</h3>
 {% if assumptions is string %}
 <p>{{ assumptions }}</p>
 {% else %}
@@ -83,7 +112,7 @@
 {% endif %}
 
 {% if constraints %}
-<h2>Constraints</h2>
+<h3>Constraints</h3>
 {% if constraints is string %}
 <p>{{ constraints }}</p>
 {% else %}
@@ -95,8 +124,189 @@
 {% endif %}
 {% endif %}
 
+{# ── Section 2: ROI Statement & Strategic Value ── #}
+{% if roi_azure_estimate or roi_questions or growth_strategy_alignment %}
+<h2>2. ROI Statement &amp; Strategic Value</h2>
+
+{% if roi_azure_estimate %}
+<h3>Azure Cost Estimate</h3>
+<p>{{ roi_azure_estimate }}</p>
+{% endif %}
+
+{% if growth_strategy_alignment %}
+<h3>Growth Strategy 3.0 Alignment</h3>
+<p>{{ growth_strategy_alignment }}</p>
+{% endif %}
+
+{% if roi_questions %}
+<div class="callout-warning" style="border-left: 4px solid #d97706; background: #fffbeb; padding: 1em; margin: 1em 0;">
+    <strong>ROI Questions for Requestor</strong>
+    <p style="font-style: italic; margin: 0.5em 0;">These questions must be answered by the business — figures must never be fabricated.</p>
+    <ol>
+        {% for q in roi_questions %}
+        <li>{{ q }}</li>
+        {% endfor %}
+    </ol>
+</div>
+{% endif %}
+{% endif %}
+
+{# ── Section 3: Problem Statement ── #}
+<h2>3. Problem Statement</h2>
+<p>{{ problem_statement }}</p>
+
+{% if problem_who_impacted %}
+<h3>Who Is Impacted</h3>
+{% if problem_who_impacted is string %}
+<p>{{ problem_who_impacted }}</p>
+{% else %}
+<ul>
+    {% for item in problem_who_impacted %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if problem_current_state %}
+<h3>Current State</h3>
+{% if problem_current_state is string %}
+<p>{{ problem_current_state }}</p>
+{% else %}
+<ul>
+    {% for item in problem_current_state %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if problem_desired_state %}
+<h3>Desired State</h3>
+{% if problem_desired_state is string %}
+<p>{{ problem_desired_state }}</p>
+{% else %}
+<ul>
+    {% for item in problem_desired_state %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{# ── Section 4: Key Features ── #}
+{% if key_features %}
+<h2>4. Key Features</h2>
+{% for feature in key_features %}
+<h3>{{ feature.name }}</h3>
+{% if feature.capabilities is string %}
+<p>{{ feature.capabilities }}</p>
+{% else %}
+<ul>
+    {% for cap in feature.capabilities %}
+    <li>{{ cap }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% if feature.user_benefits %}
+<div style="border-left: 4px solid #16a34a; background: #f0fdf4; padding: 0.5em 1em; margin: 0.5em 0;">
+    <strong>User Benefit:</strong> {{ feature.user_benefits }}
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{# ── Section 5: Functional Architecture ── #}
+{% if architecture_overview or architecture_components or architecture_data_flows %}
+<h2>5. Functional Architecture</h2>
+
+{% if architecture_overview %}
+<p>{{ architecture_overview }}</p>
+{% endif %}
+
+{% if architecture_components %}
+<h3>Components</h3>
+<table>
+    <thead>
+        <tr><th>Component</th><th>Technology</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+        {% for comp in architecture_components %}
+        <tr>
+            <td>{{ comp.component if comp is mapping else comp }}</td>
+            <td>{{ comp.technology | default("—") if comp is mapping else "—" }}</td>
+            <td>{{ comp.purpose | default("—") if comp is mapping else "—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if architecture_data_flows %}
+<h3>Data &amp; User Flows</h3>
+{% if architecture_data_flows is string %}
+<p>{{ architecture_data_flows }}</p>
+{% else %}
+<ol>
+    {% for flow in architecture_data_flows %}
+    <li>{{ flow }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+{% endif %}
+{% endif %}
+
+{# ── Section 6: Detailed Requirements ── #}
+<h2>6. Detailed Requirements</h2>
+
+<h3>Functional Requirements</h3>
+{% if requirements is string %}
+<p>{{ requirements }}</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Category</th>
+            <th>Requirement</th>
+            <th>Priority</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for req in requirements %}
+        <tr>
+            <td>{{ req.id | default("FR-%03d" | format(loop.index)) if req is mapping else loop.index }}</td>
+            <td>{{ req.category | default("—") if req is mapping else "—" }}</td>
+            <td>{{ req.description if req is mapping else req }}</td>
+            <td>{{ req.priority | default("Must Have") if req is mapping else "Must Have" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if nonfunctional_requirements %}
+<h3>Non-Functional Requirements</h3>
+{% if nonfunctional_requirements is mapping %}
+    {% for category, detail in nonfunctional_requirements.items() %}
+    <h4>{{ category }}</h4>
+    {% if detail is string %}
+    <p>{{ detail }}</p>
+    {% else %}
+    <ul>
+        {% for item in detail %}
+        <li>{{ item }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endfor %}
+{% elif nonfunctional_requirements is string %}
+<p>{{ nonfunctional_requirements }}</p>
+{% endif %}
+{% endif %}
+
 {% if acceptance_criteria %}
-<h2>Acceptance Criteria</h2>
+<h3>Acceptance Criteria</h3>
 {% if acceptance_criteria is string %}
 <p>{{ acceptance_criteria }}</p>
 {% else %}
@@ -108,19 +318,196 @@
 {% endif %}
 {% endif %}
 
-{% if dependencies %}
-<h2>Dependencies</h2>
-{% if dependencies is string %}
-<p>{{ dependencies }}</p>
+{# ── Section 7: Security & Compliance ── #}
+{% if security_auth or security_permissions or security_secrets or security_data_residency or security_gdpr or security_network or security_audit %}
+<h2>7. Security &amp; Compliance</h2>
+
+{% if security_auth %}
+<h3>Authentication</h3>
+<p>{{ security_auth }}</p>
+{% endif %}
+
+{% if security_permissions %}
+<h3>Permissions &amp; Authorisation</h3>
+{% if security_permissions is string %}
+<p>{{ security_permissions }}</p>
 {% else %}
 <ul>
-    {% for dep in dependencies %}
-    <li>{{ dep }}</li>
+    {% for item in security_permissions %}
+    <li>{{ item }}</li>
     {% endfor %}
 </ul>
 {% endif %}
 {% endif %}
 
+{% if security_secrets %}
+<h3>Secrets Management</h3>
+<p>{{ security_secrets }}</p>
+{% endif %}
+
+{% if security_data_residency %}
+<h3>Data Residency</h3>
+<p>{{ security_data_residency }}</p>
+{% endif %}
+
+{% if security_gdpr %}
+<h3>GDPR &amp; Data Protection</h3>
+<p>{{ security_gdpr }}</p>
+{% endif %}
+
+{% if security_network %}
+<h3>Network Security</h3>
+<p>{{ security_network }}</p>
+{% endif %}
+
+{% if security_audit %}
+<h3>Audit &amp; Logging</h3>
+<p>{{ security_audit }}</p>
+{% endif %}
+{% endif %}
+
+{# ── Section 8: Systems & Environments ── #}
+{% if systems_customer_requirements or systems_infrastructure or systems_integrations %}
+<h2>8. Systems &amp; Environments</h2>
+
+{% if systems_customer_requirements %}
+<h3>Customer Requirements</h3>
+{% if systems_customer_requirements is string %}
+<p>{{ systems_customer_requirements }}</p>
+{% else %}
+<ul>
+    {% for item in systems_customer_requirements %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if systems_infrastructure %}
+<h3>Infrastructure</h3>
+<table>
+    <thead>
+        <tr><th>Service</th><th>Environment</th><th>Configuration</th></tr>
+    </thead>
+    <tbody>
+        {% for entry in systems_infrastructure %}
+        <tr>
+            <td>{{ entry.service if entry is mapping else entry }}</td>
+            <td>{{ entry.environment | default("—") if entry is mapping else "—" }}</td>
+            <td>{{ entry.configuration | default("—") if entry is mapping else "—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+{% if systems_integrations %}
+<h3>Integration Points</h3>
+{% if systems_integrations is string %}
+<p>{{ systems_integrations }}</p>
+{% else %}
+<ul>
+    {% for item in systems_integrations %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+{% endif %}
+
+{# ── Section 9: Dependencies & Prerequisites ── #}
+{% if dependencies_technical or dependencies_team or dependencies_external or blockers %}
+<h2>9. Dependencies &amp; Prerequisites</h2>
+
+{% if dependencies_technical %}
+<h3>Technical Dependencies</h3>
+{% if dependencies_technical is string %}
+<p>{{ dependencies_technical }}</p>
+{% else %}
+<ul>
+    {% for item in dependencies_technical %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if dependencies_team %}
+<h3>Team Dependencies</h3>
+{% if dependencies_team is string %}
+<p>{{ dependencies_team }}</p>
+{% else %}
+<ul>
+    {% for item in dependencies_team %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if dependencies_external %}
+<h3>External Dependencies</h3>
+{% if dependencies_external is string %}
+<p>{{ dependencies_external }}</p>
+{% else %}
+<ul>
+    {% for item in dependencies_external %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+
+{% if blockers %}
+<h3>Blockers</h3>
+{% if blockers is string %}
+<p>{{ blockers }}</p>
+{% else %}
+<ul>
+    {% for item in blockers %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+{% endif %}
+
+{# ── Section 10: Implementation Approach ── #}
+{% if implementation_estimate or implementation_phases or target_go_live or critical_path %}
+<h2>10. Implementation Approach</h2>
+
+{% if implementation_estimate %}
+<p><strong>Effort Estimate:</strong> {{ implementation_estimate }}</p>
+{% endif %}
+
+{% if implementation_phases %}
+<h3>Phases</h3>
+<ol>
+    {% for phase in implementation_phases %}
+    <li>{{ phase }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+
+{% if target_go_live %}
+<p><strong>Target Go-Live:</strong> {{ target_go_live }}</p>
+{% endif %}
+
+{% if critical_path %}
+<h3>Critical Path</h3>
+{% if critical_path is string %}
+<p>{{ critical_path }}</p>
+{% else %}
+<ol>
+    {% for item in critical_path %}
+    <li>{{ item }}</li>
+    {% endfor %}
+</ol>
+{% endif %}
+{% endif %}
+{% endif %}
+
+{# ── Risks ── #}
 {% if risks %}
 <h2>Risks</h2>
 {% if risks is string %}
@@ -146,4 +533,15 @@
 </table>
 {% endif %}
 {% endif %}
+
+{# ── Pre-Delivery Checklist ── #}
+{% if pre_delivery_checklist %}
+<h2>Pre-Delivery Checklist</h2>
+<ul style="list-style: none; padding-left: 0;">
+    {% for item in pre_delivery_checklist %}
+    <li>&#9744; {{ item }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 {% endblock %}

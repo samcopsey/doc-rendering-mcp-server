@@ -1,0 +1,180 @@
+{% extends "html/base.html" %}
+
+{% block subtitle %}
+<div class="subtitle">Sprint Plan &mdash; {{ team_name }}</div>
+{% endblock %}
+
+{% block metadata %}
+<div class="meta-group">
+    <dt>Project</dt>
+    <dd>{{ project_name | default("—") }}</dd>
+</div>
+<div class="meta-group">
+    <dt>Team</dt>
+    <dd>{{ team_name }}</dd>
+</div>
+<div class="meta-group">
+    <dt>Sprint</dt>
+    <dd>{{ sprint_name }}</dd>
+</div>
+<div class="meta-group">
+    <dt>Period</dt>
+    <dd>{{ sprint_dates }}</dd>
+</div>
+{% if generated_date %}
+<div class="meta-group">
+    <dt>Generated</dt>
+    <dd>{{ generated_date }}</dd>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if total_planned_hours or total_planned_points or recommended_commitment or historical_velocity %}
+<h2>Sprint Overview</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if total_planned_hours %}
+        <tr><td>Total Planned Hours</td><td>{{ total_planned_hours }}h</td></tr>
+        {% endif %}
+        {% if total_planned_points %}
+        <tr><td>Total Story Points</td><td>{{ total_planned_points }}</td></tr>
+        {% endif %}
+        {% if recommended_commitment %}
+        <tr><td>Recommended Commitment</td><td>{{ recommended_commitment }}</td></tr>
+        {% endif %}
+        {% if historical_velocity %}
+        <tr><td>Historical Avg Velocity</td><td>{{ historical_velocity }}</td></tr>
+        {% endif %}
+    </tbody>
+</table>
+{% endif %}
+
+<h2>Work Items</h2>
+{% if work_items is string %}
+<p>{{ work_items }}</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th style="width: 50%;">Title</th>
+            <th>Type</th>
+            <th>Est. Hours</th>
+            <th>Activity</th>
+            <th>Assignee</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in work_items %}
+        {% set item_type = item.type | default(item.work_item_type | default("")) %}
+        {% set is_parent = item_type in ["Feature", "User Story", "Epic"] %}
+        <tr{% if is_parent %} style="background: #f8fafc; font-weight: 500;"{% endif %}>
+            <td>
+                {% if item_type == "Epic" %}
+                <strong>{{ item.title }}</strong>
+                {% elif item_type == "Feature" %}
+                <strong>{{ item.title }}</strong>
+                {% elif item_type == "User Story" %}
+                &nbsp;&nbsp;{{ item.title }}
+                {% elif item_type == "Task" or item_type == "Bug" %}
+                &nbsp;&nbsp;&nbsp;&nbsp;{{ item.title }}
+                {% else %}
+                {{ item.title }}
+                {% endif %}
+            </td>
+            <td>
+                {% if item_type == "User Story" %}Story{% else %}{{ item_type }}{% endif %}
+            </td>
+            <td>
+                {% if item.hours is defined and item.hours %}{{ item.hours }}h
+                {% elif item.est_hours is defined and item.est_hours %}{{ item.est_hours }}h
+                {% elif item.original_estimate is defined and item.original_estimate %}{{ item.original_estimate }}h
+                {% elif item.estimate is defined and item.estimate %}{{ item.estimate }}h
+                {% else %}—{% endif %}
+            </td>
+            <td>{{ item.activity | default("—") }}</td>
+            <td>{{ item.assigned_to | default(item.assignee | default("—")) }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% set total_hours = [] %}
+{% for item in work_items %}
+    {% if item.hours is defined and item.hours %}
+        {% if total_hours.append(item.hours) %}{% endif %}
+    {% elif item.est_hours is defined and item.est_hours %}
+        {% if total_hours.append(item.est_hours) %}{% endif %}
+    {% elif item.original_estimate is defined and item.original_estimate %}
+        {% if total_hours.append(item.original_estimate) %}{% endif %}
+    {% elif item.estimate is defined and item.estimate %}
+        {% if total_hours.append(item.estimate) %}{% endif %}
+    {% endif %}
+{% endfor %}
+{% if total_hours %}
+<p><strong>Total estimated: {{ total_hours | sum }}h across {{ work_items | length }} items</strong></p>
+{% endif %}
+{% endif %}
+
+{% if capacity_summary %}
+<h2>Capacity Summary</h2>
+{% if capacity_summary is string %}
+<p>{{ capacity_summary }}</p>
+{% else %}
+<table>
+    <thead>
+        <tr>
+            <th>Team Member</th>
+            <th>Available Hours</th>
+            <th>Assigned Hours</th>
+            <th>Remaining Hours</th>
+            <th>Utilization</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in capacity_summary %}
+        <tr>
+            <td>{{ entry.member_name | default(entry.name | default("—")) }}</td>
+            <td>{{ entry.available_hours | default(entry.available | default("—")) }}</td>
+            <td>{{ entry.assigned_hours | default(entry.assigned | default("—")) }}</td>
+            <td>{{ entry.remaining_hours | default(entry.remaining | default("—")) }}</td>
+            <td>
+                {% set pct = entry.utilization_pct | default(entry.utilization | default(none)) %}
+                {% if pct is not none %}
+                    {% if pct > 95 %}
+                    <span style="color: #dc2626; font-weight: bold;">{{ "%.0f"|format(pct) }}%</span>
+                    {% elif pct > 80 %}
+                    <span style="color: #d97706; font-weight: bold;">{{ "%.0f"|format(pct) }}%</span>
+                    {% else %}
+                    <span style="color: #16a34a;">{{ "%.0f"|format(pct) }}%</span>
+                    {% endif %}
+                {% else %}
+                —
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+{% endif %}
+
+{% if estimation_notes %}
+<h2>Estimation Notes</h2>
+{% if estimation_notes is string %}
+<p>{{ estimation_notes }}</p>
+{% else %}
+<ul>
+    {% for note in estimation_notes %}
+    <li>{{ note }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endif %}
+{% endblock %}
