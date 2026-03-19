@@ -16,6 +16,9 @@ RUN pip install --no-cache-dir . \
     && pip uninstall -y pip wheel setuptools \
     && rm -rf /root/.cache
 
+RUN useradd --create-home --shell /bin/bash appuser
+USER appuser
+
 EXPOSE 3001
 
 CMD ["python", "-m", "doc_rendering_mcp_server"]
